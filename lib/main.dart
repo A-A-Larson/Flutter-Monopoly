@@ -1,122 +1,163 @@
+// dart
+// File: lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'controllers/game_controller.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MonopolyPassAndPlay());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MonopolyPassAndPlay extends StatelessWidget {
+  const MonopolyPassAndPlay({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return GetMaterialApp(
+      title: 'Monopoly Pass & Play (MVP)',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const GameScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class GameScreen extends StatelessWidget {
+  const GameScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final gc = Get.put(GameController());
+    // initialize 2 players for MVP; you can change to prompt later
+    if (gc.players.isEmpty) gc.initPlayers(2);
+
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+      appBar: AppBar(title: const Text('Monopoly - Pass & Play (MVP)')),
+      body: Column(
+        children: [
+          // Board placeholder (portrait)
+          Expanded(
+            flex: 6,
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                border: Border.all(color: Colors.black26),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Image.asset(
+                  'assets/images/board.png',
+                  fit: BoxFit.contain,
+                  // If the image fails to load, show the original placeholder and a short message.
+                  errorBuilder: (context, error, stackTrace) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.toys, size: 48, color: Colors.black26),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Board image not found\n(ensure assets and pubspec.yaml are correct)',
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+
+          // Player area and actions
+          Expanded(
+            flex: 4,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                children: [
+                  // Player list
+                  Obx(() {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: gc.players.map((p) {
+                        final isCurrent = p.id == gc.currentPlayer.id;
+                        return Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isCurrent ? Colors.yellow.shade200 : Colors.white,
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(p.name),
+                              const SizedBox(height: 4),
+                              Text('\$${p.money}'),
+                              const SizedBox(height: 4),
+                              Text('Pos: ${p.position}'),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }),
+
+                  const SizedBox(height: 12),
+
+                  // Dice and buy buttons
+                  Obx(() {
+                    final cp = gc.currentPlayer;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: gc.rollDice,
+                          child: Column(
+                            children: [
+                              const Icon(Icons.casino),
+                              const SizedBox(height: 4),
+                              Text('Roll (Last: ${gc.lastRoll.value})'),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: gc.canBuy.value ? gc.buyProperty : null,
+                          child: const Text('Buy Property'),
+                        ),
+                        ElevatedButton(
+                          onPressed: gc.endTurn,
+                          child: const Text('End Turn'),
+                        ),
+                      ],
+                    );
+                  }),
+
+                  const SizedBox(height: 12),
+
+                  // Log
+                  Expanded(
+                    child: Obx(() {
+                      return Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.black12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ListView(
+                          children: gc.log.reversed.map((e) => Text(e)).toList(),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
