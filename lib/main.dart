@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controllers/game_controller.dart';
+import 'widgets/property_tile.dart';
+
 
 void main() {
   runApp(const MonopolyPassAndPlay());
@@ -48,24 +50,19 @@ class GameScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
-                child: Image.asset(
-                  'assets/images/board.png',
-                  fit: BoxFit.contain,
-                  // If the image fails to load, show the original placeholder and a short message.
-                  errorBuilder: (context, error, stackTrace) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.toys, size: 48, color: Colors.black26),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Board image not found\n(ensure assets and pubspec.yaml are correct)',
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                child: Obx(() {
+                  // Watch currentPlayerIndex to trigger rebuild
+                  final player = gc.players[gc.currentPlayerIndex.value];
+                  final currentPos = player.position.value;
+                  final currentProperty = gc.properties.firstWhere(
+                        (p) => p.position == currentPos,
+                    orElse: () => gc.properties.first,
+                  );
+
+                  return Center(
+                    child: PropertyTile(property: currentProperty),
+                  );
+                }),
               ),
             ),
           ),

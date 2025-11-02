@@ -1,22 +1,19 @@
-// dart
-// File: lib/models/player.dart
+import 'package:get/get.dart';
+
 class Player {
   final int id;
   final String name;
-  int money;
-  int position;
-  String tokenAsset; // placeholder asset path or token id
-  bool inJail;
-  int jailTurns;
-  int get netWorth => money; // extend to include property values later
+  final String tokenAsset;
+  final RxInt money = 1500.obs;
+  final RxInt position = 0.obs;
+  final RxBool inJail = false.obs;
+  final RxInt jailTurns = 0.obs;
+  final RxBool getOutOfJailFreeCard = false.obs;
 
   Player({
     required this.id,
     required this.name,
-    this.money = 1500,
-    this.position = 0,
-    this.tokenAsset = '',
-    this.inJail = false,
-    this.jailTurns = 0,
+    required this.tokenAsset,
   });
 }
+
