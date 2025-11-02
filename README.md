@@ -2,15 +2,8 @@
 
 A new Flutter project.
 
-## Getting Started
+## This project 
+This was an exercise to create an MVP of a Monopoly game using Flutter
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Screenshot 
+<img width="548" height="1155" alt="image" src="https://github.com/user-attachments/assets/702c3bc5-e14c-46e6-829a-c2f433adc82b" />
